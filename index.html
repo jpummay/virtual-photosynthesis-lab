@@ -1,51 +1,88 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Virtual Photosynthesis Lab</title>
+<title>Virtual Photosynthesis Investigation</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body { font-family: Arial; margin: 40px; background-color: #f4f9f4; }
-h1 { color: #2e7d32; }
-.container { background: white; padding: 20px; border-radius: 10px; }
-button { padding: 10px; margin-top: 10px; }
+body { font-family: Arial; margin: 40px; background-color: #eef6f0; }
+.container { background: white; padding: 25px; border-radius: 10px; }
+h1 { color: #1b5e20; }
+button { padding: 8px 12px; margin-top: 10px; }
+label { font-weight: bold; }
+textarea { width: 100%; margin-top: 10px; }
 </style>
 </head>
 <body>
 
-<h1>Virtual Lab: Factors Affecting Photosynthesis</h1>
+<h1>Virtual Lab: Modeling Photosynthesis (HS-LS1-5)</h1>
 
 <div class="container">
-<p><strong>Standard:</strong> HS-LS1-5 – Model how light energy transforms into stored chemical energy.</p>
 
-<label>Adjust Light Intensity (lux):</label><br>
+<p><strong>Objective:</strong> Model how light energy influences the rate of photosynthesis by measuring oxygen production.</p>
+
+<p><strong>Step 1: Form a Hypothesis</strong></p>
+<textarea rows="3" placeholder="If light intensity increases, then..."></textarea>
+
+<hr>
+
+<label>Light Intensity (lux):</label><br>
 <input type="range" min="0" max="100" value="50" id="lightSlider">
-<p>Light Intensity: <span id="lightValue">50</span></p>
+<p>Current Light Intensity: <span id="lightValue">50</span></p>
+
+<label>Temperature (°C):</label><br>
+<input type="range" min="5" max="50" value="25" id="tempSlider">
+<p>Current Temperature: <span id="tempValue">25</span></p>
 
 <button onclick="runTrial()">Run 1-Minute Trial</button>
 
 <p><strong>Oxygen Bubbles Produced:</strong> <span id="bubbleOutput">0</span></p>
 
-<canvas id="dataChart" width="400" height="200"></canvas>
+<canvas id="dataChart" width="600" height="300"></canvas>
+
+<hr>
+
+<p><strong>Step 2: Claim-Evidence-Reasoning</strong></p>
+<textarea rows="4" placeholder="Claim:"></textarea>
+<textarea rows="4" placeholder="Evidence:"></textarea>
+<textarea rows="4" placeholder="Reasoning: Explain how light energy is transformed into chemical energy."></textarea>
+
 </div>
 
 <script>
-const slider = document.getElementById("lightSlider");
+const lightSlider = document.getElementById("lightSlider");
+const tempSlider = document.getElementById("tempSlider");
 const lightValue = document.getElementById("lightValue");
+const tempValue = document.getElementById("tempValue");
 const bubbleOutput = document.getElementById("bubbleOutput");
 
-slider.oninput = function() {
+lightSlider.oninput = function() {
   lightValue.innerHTML = this.value;
+}
+
+tempSlider.oninput = function() {
+  tempValue.innerHTML = this.value;
 }
 
 let dataPoints = [];
 
 function runTrial() {
-  let intensity = slider.value;
-  let bubbles = Math.round((intensity * 0.8) - (0.003 * intensity * intensity));
+  let light = parseFloat(lightSlider.value);
+  let temp = parseFloat(tempSlider.value);
+
+  // Light effect with plateau (limiting factor model)
+  let lightEffect = (light * 0.9) - (0.004 * light * light);
+  if (lightEffect < 0) lightEffect = 0;
+
+  // Temperature effect (optimal at 25°C)
+  let tempEffect = 1 - Math.abs(temp - 25) / 25;
+  if (tempEffect < 0) tempEffect = 0;
+
+  let bubbles = Math.round(lightEffect * tempEffect);
   if (bubbles < 0) bubbles = 0;
 
   bubbleOutput.innerHTML = bubbles;
-  dataPoints.push({x: intensity, y: bubbles});
+
+  dataPoints.push({x: light, y: bubbles});
   updateChart();
 }
 
@@ -60,11 +97,19 @@ let chart = new Chart(ctx, {
   },
   options: {
     scales: {
-      x: { title: { display: true, text: 'Light Intensity (lux)' }},
-      y: { title: { display: true, text: 'Oxygen Bubbles per Minute' }}
+      x: {
+        title: { display: true, text: 'Light Intensity (lux)' }
+      },
+      y: {
+        title: { display: true, text: 'Oxygen Bubbles per Minute' }
+      }
     }
   }
 });
+
+function updateChart() {
+  chart.update();
+}
 </script>
 
 </body>
