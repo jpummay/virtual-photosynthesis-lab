@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Virtual Photosynthesis Lab</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { font-family: Arial; margin: 40px; background-color: #f4f9f4; }
+h1 { color: #2e7d32; }
+.container { background: white; padding: 20px; border-radius: 10px; }
+button { padding: 10px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<h1>Virtual Lab: Factors Affecting Photosynthesis</h1>
+
+<div class="container">
+<p><strong>Standard:</strong> HS-LS1-5 – Model how light energy transforms into stored chemical energy.</p>
+
+<label>Adjust Light Intensity (lux):</label><br>
+<input type="range" min="0" max="100" value="50" id="lightSlider">
+<p>Light Intensity: <span id="lightValue">50</span></p>
+
+<button onclick="runTrial()">Run 1-Minute Trial</button>
+
+<p><strong>Oxygen Bubbles Produced:</strong> <span id="bubbleOutput">0</span></p>
+
+<canvas id="dataChart" width="400" height="200"></canvas>
+</div>
+
+<script>
+const slider = document.getElementById("lightSlider");
+const lightValue = document.getElementById("lightValue");
+const bubbleOutput = document.getElementById("bubbleOutput");
+
+slider.oninput = function() {
+  lightValue.innerHTML = this.value;
+}
+
+let dataPoints = [];
+
+function runTrial() {
+  let intensity = slider.value;
+  let bubbles = Math.round((intensity * 0.8) - (0.003 * intensity * intensity));
+  if (bubbles < 0) bubbles = 0;
+
+  bubbleOutput.innerHTML = bubbles;
+  dataPoints.push({x: intensity, y: bubbles});
+  updateChart();
+}
+
+const ctx = document.getElementById('dataChart').getContext('2d');
+let chart = new Chart(ctx, {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'Light Intensity vs Oxygen Production',
+      data: dataPoints
+    }]
+  },
+  options: {
+    scales: {
+      x: { title: { display: true, text: 'Light Intensity (lux)' }},
+      y: { title: { display: true, text: 'Oxygen Bubbles per Minute' }}
+    }
+  }
+});
+</script>
+
+</body>
+</html>
